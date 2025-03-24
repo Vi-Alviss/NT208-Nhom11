@@ -37,8 +37,8 @@ const DefaultNavbar = () => {
                 {/* Menu */}
                 <div className="hidden md:flex justify-center space-x-6 text-darkPrimary font-semibold">
                     <a href="/dashboard"><TertiaryButton>Home</TertiaryButton></a>
-                    <a href="/checkcv"><SecondaryButton>Check CV</SecondaryButton></a>
-                    <a href="/post-job"><PrimaryButton>Post</PrimaryButton></a>
+                    <a href="/check-cv"><SecondaryButton>Check CV</SecondaryButton></a>
+                    <a href="/jobs/post"><PrimaryButton>Post</PrimaryButton></a>
                 
                         {/* Nút icon */}
                         <div className="flex space-x-3 items-center">

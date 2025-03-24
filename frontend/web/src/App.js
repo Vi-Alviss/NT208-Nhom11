@@ -5,6 +5,7 @@ import ChangeProfile from "./pages/settings/change-profile";
 import ChangeCV from "./pages/settings/change-cv";
 import PostJob from "./pages/jobs/post";
 import Test from "./pages/test"
+import CheckCV from "./pages/check-cv";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/settings/change-cv" element={<ChangeCV />} />
         <Route path="/test" element={<Test />} />
         <Route path="jobs/post" element={<PostJob />} />
+        <Route path="check-cv" element={<CheckCV />} />
       </Routes>
     </Router>
   );
