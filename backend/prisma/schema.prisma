@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Companies {
+  CompanyID     Int     @id @default(autoincrement())
+  Name          String  @db.VarChar(255)
+  Address       String? @db.Text
+  AvartarURL    String  @db.VarChar(255)
+  AverageRating Float?  @default(0) @db.Float
+  OwnerID       Int?
+  Description   String? @db.Text
+  Users         Users?  @relation(fields: [OwnerID], references: [UserID], onUpdate: NoAction, map: "Companies_ibfk_1")
+
+  @@index([OwnerID], map: "OwnerID")
+}
+
+model MessageAttachments {
+  AttachmentID Int                         @id @default(autoincrement())
+  MessageID    Int
+  FileURL      String                      @db.VarChar(255)
+  FileType     MessageAttachments_FileType
+  UploadedDate DateTime?                   @default(now()) @db.Timestamp(0)
+  Messages     Messages                    @relation(fields: [MessageID], references: [MessageID], onDelete: Cascade, onUpdate: NoAction, map: "MessageAttachments_ibfk_1")
+
+  @@index([MessageID], map: "MessageID")
+}
+
+model Messages {
+  MessageID                        Int                  @id @default(autoincrement())
+  SenderID                         Int
+  ReceiverID                       Int
+  MessageText                      String?              @db.Text
+  SentDate                         DateTime?            @default(now()) @db.Timestamp(0)
+  MessageAttachments               MessageAttachments[]
+  Users_Messages_SenderIDToUsers   Users                @relation("Messages_SenderIDToUsers", fields: [SenderID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Messages_ibfk_1")
+  Users_Messages_ReceiverIDToUsers Users                @relation("Messages_ReceiverIDToUsers", fields: [ReceiverID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Messages_ibfk_2")
+
+  @@index([ReceiverID], map: "ReceiverID")
+  @@index([SenderID], map: "SenderID")
+}
+
+model Payments {
+  PaymentID                        Int                         @id @default(autoincrement())
+  SenderID                         Int?
+  ReceiverID                       Int?
+  Salary                           Decimal                     @db.Decimal(10, 2)
+  PaymentMethod                    Payments_PaymentMethod?
+  TransactionStatus                Payments_TransactionStatus? @default(pending)
+  PaymentDate                      DateTime?                   @default(now()) @db.Timestamp(0)
+  Users_Payments_SenderIDToUsers   Users?                      @relation("Payments_SenderIDToUsers", fields: [SenderID], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "Payments_ibfk_1")
+  Users_Payments_ReceiverIDToUsers Users?                      @relation("Payments_ReceiverIDToUsers", fields: [ReceiverID], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "Payments_ibfk_2")
+
+  @@index([ReceiverID], map: "ReceiverID")
+  @@index([SenderID], map: "SenderID")
+}
+
+model ProjectApplicants {
+  ProjectID   Int
+  UserID      Int
+  AppliedDate DateTime?                 @default(now()) @db.Timestamp(0)
+  Status      ProjectApplicants_Status? @default(pending)
+  Projects    Projects                  @relation(fields: [ProjectID], references: [ProjectID], onDelete: Cascade, onUpdate: NoAction, map: "ProjectApplicants_ibfk_1")
+  Users       Users                     @relation(fields: [UserID], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "ProjectApplicants_ibfk_2")
+
+  @@id([ProjectID, UserID])
+  @@index([UserID], map: "UserID")
+}
+
+model Projects {
+  ProjectID         Int                  @id @default(autoincrement())
+  ProjectName       String               @db.VarChar(255)
+  UploadedDate      DateTime?            @default(now()) @db.Timestamp(0)
+  ExpiredDate       DateTime?            @default(now()) @db.Timestamp(0)
+  Budget            Decimal              @db.Decimal(10, 2)
+  OwnerID           Int?
+  Description       String?              @db.Text
+  WorkingType       Projects_WorkingType
+  WorkingPlace      String?              @db.VarChar(255)
+  Field             String?              @db.VarChar(255)
+  Status            Projects_Status?     @default(open)
+  AverageRating     Float?               @default(0) @db.Float
+  ProjectApplicants ProjectApplicants[]
+  Users             Users?               @relation(fields: [OwnerID], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "Projects_ibfk_1")
+  UserProjects      UserProjects[]
+
+  @@index([OwnerID], map: "OwnerID")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Ratings {
+  RatingID                         Int       @id @default(autoincrement())
+  RatedUserID                      Int?
+  RaterID                          Int?
+  Score                            Int?
+  Comment                          String?   @db.Text
+  RatingDate                       DateTime? @default(now()) @db.Timestamp(0)
+  Users_Ratings_RatedUserIDToUsers Users?    @relation("Ratings_RatedUserIDToUsers", fields: [RatedUserID], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "Ratings_ibfk_1")
+  Users_Ratings_RaterIDToUsers     Users?    @relation("Ratings_RaterIDToUsers", fields: [RaterID], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "Ratings_ibfk_2")
+
+  @@index([RatedUserID], map: "RatedUserID")
+  @@index([RaterID], map: "RaterID")
+}
+
+model UserProjects {
+  UserID    Int
+  ProjectID Int
+  Role      UserProjects_Role
+  Users     Users             @relation(fields: [UserID], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "UserProjects_ibfk_1")
+  Projects  Projects          @relation(fields: [ProjectID], references: [ProjectID], onDelete: Cascade, onUpdate: NoAction, map: "UserProjects_ibfk_2")
+
+  @@id([UserID, ProjectID, Role])
+  @@index([ProjectID], map: "ProjectID")
+}
+
+model Users {
+  UserID                              Int                 @id @default(autoincrement())
+  Username                            String              @unique(map: "Username") @db.VarChar(255)
+  Password                            String              @db.VarChar(255)
+  Email                               String              @unique(map: "Email") @db.VarChar(255)
+  PhoneNumber                         String?             @db.VarChar(20)
+  AvartarURL                          String              @db.VarChar(255)
+  Skill                               String?             @db.Text
+  CreatedDate                         DateTime?           @default(now()) @db.Timestamp(0)
+  Experience                          Int?                @default(0)
+  CV_URL                              String?             @db.VarChar(255)
+  AverageRating                       Float?              @default(0) @db.Float
+  Companies                           Companies[]
+  Messages_Messages_SenderIDToUsers   Messages[]          @relation("Messages_SenderIDToUsers")
+  Messages_Messages_ReceiverIDToUsers Messages[]          @relation("Messages_ReceiverIDToUsers")
+  Payments_Payments_SenderIDToUsers   Payments[]          @relation("Payments_SenderIDToUsers")
+  Payments_Payments_ReceiverIDToUsers Payments[]          @relation("Payments_ReceiverIDToUsers")
+  ProjectApplicants                   ProjectApplicants[]
+  Projects                            Projects[]
+  Ratings_Ratings_RatedUserIDToUsers  Ratings[]           @relation("Ratings_RatedUserIDToUsers")
+  Ratings_Ratings_RaterIDToUsers      Ratings[]           @relation("Ratings_RaterIDToUsers")
+  UserProjects                        UserProjects[]
+}
+
+enum UserProjects_Role {
+  posted
+  completed
+}
+
+enum MessageAttachments_FileType {
+  image
+  video
+  document
+  pdf
+  excel
+}
+
+enum ProjectApplicants_Status {
+  pending
+  accepted
+  rejected
+}
+
+enum Payments_PaymentMethod {
+  PayPal
+  Credit_Card   @map("Credit Card")
+  Bank_Transfer @map("Bank Transfer")
+}
+
+enum Payments_TransactionStatus {
+  pending
+  completed
+  failed
+}
+
+enum Projects_WorkingType {
+  onsite
+  remote
+  hybrid
+}
+
+enum Projects_Status {
+  open
+  closed
+  in_progress @map("in-progress")
+}
