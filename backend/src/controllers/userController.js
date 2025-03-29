@@ -1,13 +1,44 @@
-const { db } = require('../config/firebase');
+import { PrismaClient } from "@prisma/client";
 
-const getUsers = async (req, res) => {
+const prisma = new PrismaClient();
+const getUser = async (req, res) => {
   try {
-    const snapshot = await db.collection('users').get();
-    const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.json(users);
+    const users = await prisma.users.findMany();
+    return res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi lấy danh sách user!', error });
+    console.error("Get user error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-module.exports = { getUsers };
+const getUserById = async (req, res) => {
+  try {
+   const { id } = req.params;
+    const user = await prisma.users.findUnique({
+      where: {
+        UserID: parseInt(id),
+      },
+    });
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Get user by id error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getUserByIdQuery = async (req, res) => {
+  try {
+   const { id } = req.query;
+    const user = await prisma.users.findUnique({
+      where: {
+        UserID: parseInt(id),
+      },
+    });
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Get user by id error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export { getUser, getUserById, getUserByIdQuery };
