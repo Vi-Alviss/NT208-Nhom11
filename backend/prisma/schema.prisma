@@ -131,6 +131,7 @@ model Users {
   CV_URL                              String?             @db.VarChar(255)
   AverageRating                       Float?              @default(0) @db.Float
   Companies                           Companies[]
+  ForgotPass                          ForgotPass?
   Messages_Messages_SenderIDToUsers   Messages[]          @relation("Messages_SenderIDToUsers")
   Messages_Messages_ReceiverIDToUsers Messages[]          @relation("Messages_ReceiverIDToUsers")
   Payments_Payments_SenderIDToUsers   Payments[]          @relation("Payments_SenderIDToUsers")
@@ -140,6 +141,13 @@ model Users {
   Ratings_Ratings_RatedUserIDToUsers  Ratings[]           @relation("Ratings_RatedUserIDToUsers")
   Ratings_Ratings_RaterIDToUsers      Ratings[]           @relation("Ratings_RaterIDToUsers")
   UserProjects                        UserProjects[]
+}
+
+model ForgotPass {
+  UserID     Int      @id
+  ForgotCode String   @db.VarChar(20)
+  Expiry     DateTime @db.DateTime(0)
+  Users      Users    @relation(fields: [UserID], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "ForgotPass_ibfk_1")
 }
 
 enum UserProjects_Role {

@@ -41,4 +41,7 @@ const getUserByIdQuery = async (req, res) => {
   }
 };
 
+
+
+
 export { getUser, getUserById, getUserByIdQuery };
