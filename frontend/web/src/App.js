@@ -7,6 +7,7 @@ import PostJob from "./pages/jobs/post";
 import Test from "./pages/test"
 import SignUp from "./pages/signup"; 
 import Login from "./pages/login"; 
+import ForgotPass from "./pages/ForgotPass";
 
 
 function App() {
@@ -20,7 +21,8 @@ function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} /> 
-        <Route path="jobs/post" element={<PostJob />} />
+        <Route path="/jobs/post" element={<PostJob />} />
+        <Route path="/forgotPass" element={<ForgotPass />} />
       </Routes>
     </Router>
   );
