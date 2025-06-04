@@ -15,6 +15,7 @@ import database from "./src/config/database.js";
 import rootRoutes from "./src/routes/rootRoutes.js";
 import chatbotRoutes from "./src/routes/chatbotRoute.js";
 import projectRoutes from "./src/routes/projectRoutes.js";
+import paymentRoutes from "./src/routes/paymentRoutes.js";
 
 import { updateExpiredProjects } from './src/config/cronJob.js'
 
@@ -35,12 +36,11 @@ server.listen(SOCKET_PORT, () => {
     console.log("Socket server is running on port ", SOCKET_PORT);
 });
 
-// cấu hình swagger
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Middleware xử lý body (đặt trước các routes)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
-// Middleware (được di chuyển xuống dưới các route sử dụng Multer)
-// app.use(express.json()); // <-- Moved below routes
+// Cấu hình CORS
 app.use(cors({
     origin: (origin, callback) => {
         callback(null, true); // Cho phép tất cả origins
@@ -48,6 +48,7 @@ app.use(cors({
     credentials: true
 }));
 
+// Cấu hình cookie và session
 app.use(cookieParser());
 app.use(session({
     secret: process.env.JWT_SECRET,
@@ -58,16 +59,20 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(express.json());
+// Cấu hình swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use("/api", rootRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/project", projectRoutes);
 
+
 // Middleware xử lý body (đặt sau các route sử dụng Multer)
 // Nếu có express.urlencoded() cũng nên đặt ở đây
 // app.use(express.urlencoded({ extended: true }));
 
+app.use("/api/payment", paymentRoutes);
 
 // Kiểm tra kết nối database
 database.connect()
