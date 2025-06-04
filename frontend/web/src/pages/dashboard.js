@@ -21,6 +21,10 @@ const DashBoard = ({ onLogout }) => {
   const MAX_RETRIES = 3;
   const TIMEOUT_DURATION = 10000; // 10 seconds
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 12; // Show 12 projects per page
+
   const fetchWithTimeout = async (promise, timeoutMs) => {
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Request timeout')), timeoutMs);
@@ -129,6 +133,13 @@ const DashBoard = ({ onLogout }) => {
     }
   };
 
+  // Paginated Projects
+  const paginateProjects = (projects) => {
+    const startIndex = (currentPage - 1) * projectsPerPage;
+    const endIndex = currentPage * projectsPerPage;
+    return projects.slice(startIndex, endIndex);
+  };
+
   // Hàm xử lý dữ liệu project trước khi hiển thị
   const processProjectData = (project) => {
     return {
@@ -140,6 +151,8 @@ const DashBoard = ({ onLogout }) => {
       daysLeft: Math.ceil((new Date(project.expireddate) - new Date()) / (1000 * 60 * 60 * 24))
     };
   };
+
+  const totalPages = Math.ceil(getFilteredProjects().length / projectsPerPage);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 mb-4">
@@ -167,7 +180,7 @@ const DashBoard = ({ onLogout }) => {
               </div>
             ) : (
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                {getFilteredProjects().map((project) => (
+                {paginateProjects(getFilteredProjects()).map((project) => (
                   <JobSummary
                     key={project.projectid}
                     filter={selectedFilter}
@@ -177,6 +190,25 @@ const DashBoard = ({ onLogout }) => {
                 ))}
               </div>
             )}
+
+            {/* Pagination */}
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-4 py-2 bg-gray-500 text-white rounded"
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className="px-4 py-2 bg-gray-500 text-white rounded"
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
           </div>
 
           {/* Cột bên - Thông tin người dùng */}

@@ -14,6 +14,11 @@ const ProfileBar = () => {
     const [projectsLoading, setProjectsLoading] = useState(false);
     const [projectsError, setProjectsError] = useState(null);
 
+    // Pagination states
+    const [currentPagePosted, setCurrentPagePosted] = useState(1);
+    const [currentPageFinished, setCurrentPageFinished] = useState(1);
+    const projectsPerPage = 9;
+
     console.log(projects)
 
     useEffect(() => {
@@ -31,10 +36,18 @@ const ProfileBar = () => {
                     setProjectsLoading(false);
                 }
             }
+// chua them cho jobfinished       
         };
 
         fetchProjects();
     }, [activeTab]);
+
+    // Paginate the projects for both tabs
+    const paginateProjects = (projects, currentPage) => {
+        const startIndex = (currentPage - 1) * projectsPerPage;
+        const endIndex = startIndex + projectsPerPage;
+        return projects.slice(startIndex, endIndex);
+    };
 
     const renderTabContent = () => {
         if (loading) {
@@ -110,13 +123,32 @@ const ProfileBar = () => {
                         <h3 className="text-lg font-semibold mb-4">Dự án đã đăng</h3>
                         {projects.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {projects.map(project => (
-                                    <JobSummary job={project} />
+                                {paginateProjects(projects, currentPagePosted).map(project => (
+                                    <JobSummary key={project.projectid} job={project} />
                                 ))}
                             </div>
                         ) : (
                             <p className="text-gray-600">Chưa có dự án nào.</p>
                         )}
+                        
+                        {/* Pagination */}
+                        <div className="flex justify-center mt-4">
+                            <button
+                                onClick={() => setCurrentPagePosted(prev => Math.max(prev - 1, 1))}
+                                className="px-4 py-2 bg-gray-500 text-white rounded"
+                                disabled={currentPagePosted === 1}
+                            >
+                                Previous
+                            </button>
+                            <span className="px-4 py-2">{`${currentPagePosted} / ${Math.ceil(projects.length / projectsPerPage)}`}</span>
+                            <button
+                                onClick={() => setCurrentPagePosted(prev => Math.min(prev + 1, Math.ceil(projects.length / projectsPerPage)))}
+                                className="px-4 py-2 bg-gray-500 text-white rounded"
+                                disabled={currentPagePosted === Math.ceil(projects.length / projectsPerPage)}
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
                 );
             case 'jobFinished':
