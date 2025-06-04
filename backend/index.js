@@ -57,13 +57,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(express.json());
+
 // Routes
 app.use("/api", rootRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/project", projectRoutes);
 
 // Middleware xử lý body (đặt sau các route sử dụng Multer)
-app.use(express.json());
 // Nếu có express.urlencoded() cũng nên đặt ở đây
 // app.use(express.urlencoded({ extended: true }));
 
