@@ -15,9 +15,9 @@ import database from "./src/config/database.js";
 import rootRoutes from "./src/routes/rootRoutes.js";
 import chatbotRoutes from "./src/routes/chatbotRoute.js";
 import projectRoutes from "./src/routes/projectRoutes.js";
-import paymentRoutes from "./src/routes/paymentRoutes.js";
+// import paymentRoutes from "./src/routes/paymentRoutes.js";
 
-import { updateExpiredProjects } from './src/config/cronJob.js'
+import { updateExpiredProjects } from "./src/config/cronJob.js";
 
 dotenv.config();
 
@@ -25,15 +25,14 @@ const app = express();
 
 const SERVER_PORT = process.env.SERVER_PORT || 3000;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3001";
-const SOCKET_PORT = process.env.SOCKET_PORT || 3002; 
-
+const SOCKET_PORT = process.env.SOCKET_PORT || 3002;
 
 const server = http.createServer(app);
 
 // Cấu hình socket.io
 setupSocket(server);
 server.listen(SOCKET_PORT, () => {
-    console.log("Socket server is running on port ", SOCKET_PORT);
+  console.log("Socket server is running on port ", SOCKET_PORT);
 });
 
 // Middleware xử lý body (đặt trước các routes)
@@ -41,20 +40,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Cấu hình CORS
-app.use(cors({
+app.use(
+  cors({
     origin: (origin, callback) => {
-        callback(null, true); // Cho phép tất cả origins
+      callback(null, true); // Cho phép tất cả origins
     },
-    credentials: true
-}));
+    credentials: true,
+  })
+);
 
 // Cấu hình cookie và session
 app.use(cookieParser());
-app.use(session({
+app.use(
+  session({
     secret: process.env.JWT_SECRET,
     resave: false,
-    saveUninitialized: false
-}));
+    saveUninitialized: false,
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -67,21 +70,21 @@ app.use("/api", rootRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/project", projectRoutes);
 
-
 // Middleware xử lý body (đặt sau các route sử dụng Multer)
 // Nếu có express.urlencoded() cũng nên đặt ở đây
 // app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/payment", paymentRoutes);
+// app.use("/api/payment", paymentRoutes);
 
 // Kiểm tra kết nối database
-database.connect()
-    .then(client => {
-        console.log("✅ PostgreSQL database connected successfully!");
-        client.release();
-    })
-    .catch((err) => console.error("❌ Database connection failed:", err));
+database
+  .connect()
+  .then((client) => {
+    console.log("✅ PostgreSQL database connected successfully!");
+    client.release();
+  })
+  .catch((err) => console.error("❌ Database connection failed:", err));
 
-app.listen(SERVER_PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server is running on http://localhost:${SERVER_PORT}`);
+app.listen(SERVER_PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server is running on http://localhost:${SERVER_PORT}`);
 });
