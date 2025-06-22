@@ -1,17 +1,25 @@
-import { timeFromNow, formatTime } from '../utils/dayjs';
-import useAuth from '../hooks/useAuth';
-import Spinner from './Spinner';
+import { timeFromNow, formatTime } from "../utils/dayjs";
+import useAuth from "../hooks/useAuth";
+import Spinner from "./Spinner";
 
 const MessageItem = ({ message, avatarURL, conversationName }) => {
   const { userID, isLoading } = useAuth();
   const isCurrentUser = message.senderid === userID;
-  
+
   if (isLoading) return <Spinner />;
-  
+
   return (
-    <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4 px-4 lg:px-8`}>
+    <div
+      className={`flex ${
+        isCurrentUser ? "justify-end" : "justify-start"
+      } mb-4 px-4 lg:px-8`}
+    >
       {/* Container tin nhắn */}
-      <div className={`flex items-start max-w-xs sm:max-w-sm lg:max-w-md gap-3 ${isCurrentUser ? 'flex-row-reverse' : ''}`}>
+      <div
+        className={`flex items-start max-w-xs sm:max-w-sm lg:max-w-md gap-3 ${
+          isCurrentUser ? "flex-row-reverse" : ""
+        }`}
+      >
         {/* Avatar (ẩn với tin nhắn của current user) */}
         {!isCurrentUser && (
           <div className="mt-4 w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-lg overflow-hidden flex-shrink-0">
@@ -49,7 +57,9 @@ const MessageItem = ({ message, avatarURL, conversationName }) => {
           {/* Thời gian */}
           <div
             className={`text-xs mt-1.5 ${
-              isCurrentUser ? "text-right text-gray-500" : "text-left text-gray-500"
+              isCurrentUser
+                ? "text-right text-gray-500"
+                : "text-left text-gray-500"
             }`}
           >
             {timeFromNow(message.createdat)}

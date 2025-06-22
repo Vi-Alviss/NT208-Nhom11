@@ -83,6 +83,7 @@ const AppContent = () => {
         <Route path="/messages" element={authenticated ? <Message onLogout={handleLogout} /> : <Navigate to="/login" replace />} />
         <Route path="/messages/:id" element={authenticated ? <Message onLogout={handleLogout} /> : <Navigate to="/login" replace />} />
         <Route path="/users/:id" element={authenticated ? <IntroPage onLogout={handleLogout}  /> : <Navigate to="/login" replace />} />
+
       </Routes>
       {!isMessagePage && <ChatBot />}
     </>

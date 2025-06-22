@@ -1,97 +1,103 @@
-import { useEffect, useRef, useState } from 'react';
-import MessageItem from './MessageItem';
-import Spinner from './Spinner';
-import { FaArrowDown } from 'react-icons/fa';
+import { useEffect, useRef, useState } from "react";
+import MessageItem from "./MessageItem";
+import Spinner from "./Spinner";
+import { FaArrowDown } from "react-icons/fa";
 
-function MessageComponent({ conversationID, socket, messages, loading, error, refreshMessages, setMessages, avatarURL, conversationName }) {
+function MessageComponent({
+  conversationID,
+  socket,
+  messages,
+  loading,
+  error,
+  setMessages,
+  avatarURL,
+  conversationName,
+}) {
+  const messagesEndRef = useRef(null);
+  const containerRef = useRef(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
-    const messagesEndRef = useRef(null);
-    const containerRef = useRef(null);
-    const [showScrollButton, setShowScrollButton] = useState(false);
+  const scrollToBottom = () => {
+    if (!containerRef.current) return;
 
-    // Cuộn tự động đến tin nhắn mới nhất
-    const scrollToBottom = () => {
-        if (!containerRef.current) return;
-        
-        setTimeout(() => {
-            containerRef.current.scrollTop = containerRef.current.scrollHeight;
-            setShowScrollButton(false);
-        }, 100);
+    setTimeout(() => {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      setShowScrollButton(false);
+    }, 100);
+  };
+
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+    setShowScrollButton(!isNearBottom);
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (!socket?.socket?.current || !conversationID) return;
+
+    const currentSocket = socket.socket.current;
+
+    currentSocket.emit("joinConversation", conversationID);
+
+    const handleReceiveMessage = (newMessage) => {
+      setMessages((prevMessages) => {
+        const messageExists = prevMessages.some(
+          (msg) => msg.id === newMessage.id
+        );
+        if (messageExists) return prevMessages;
+
+        return [...prevMessages, newMessage];
+      });
+      scrollToBottom();
     };
 
-    // Kiểm tra vị trí scroll để hiển thị/ẩn nút cuộn xuống
-    const handleScroll = () => {
-        if (!containerRef.current) return;
-        
-        const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-        const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-        setShowScrollButton(!isNearBottom);
+    currentSocket.on("receiveMessage", handleReceiveMessage);
+
+    return () => {
+      currentSocket.off("receiveMessage", handleReceiveMessage);
     };
+  }, [conversationID, socket, setMessages]);
 
-    // Cuộn xuống khi có tin nhắn mới
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+  if (error) return <div>Error: {error}</div>;
 
-    // Xử lý socket
-    useEffect(() => {
-        if (!socket || !conversationID) return;
-
-        const currentSocket = socket.current;
-        if (!currentSocket) return;
-
-        currentSocket.emit("joinConversation", conversationID);
-
-        const handleReceiveMessage = () => {
-            refreshMessages();
-            scrollToBottom();
-        };
-
-        currentSocket.on("receiveMessage", handleReceiveMessage);
-
-        return () => {
-            if (currentSocket) {
-                currentSocket.off("receiveMessage", handleReceiveMessage);
-            }
-        };
-    }, [conversationID, socket, setMessages, refreshMessages]);
-
-    if (error) return <div>Error: {error}</div>;
-
-    return (
-        <div className="relative h-[calc(100vh-12rem)] pb-9">
-            <div 
-                ref={containerRef}
-                className='h-full overflow-y-auto px-4 py-2'
-                style={{ scrollBehavior: 'smooth' }}
-                onScroll={handleScroll}
-            >
-                {loading ? <Spinner /> : null}
-                <div className="flex flex-col space-y-4">
-                    {messages.map((message, index) => (
-                        <MessageItem 
-                            key={message.MessageID || message._id || index} 
-                            message={message}
-                            avatarURL={avatarURL} 
-                            conversationName={conversationName}
-                        />
-                    ))}
-                </div>
-                <div ref={messagesEndRef} />
-            </div>
-
-            {/* Nút cuộn xuống */}
-            {showScrollButton && (
-                <button
-                    onClick={scrollToBottom}
-                    className="absolute z-50 bottom-4 right-4 bg-primary-500 text-white p-3 rounded-full shadow-lg hover:bg-primary-600 transition-colors duration-200"
-                    title="Cuộn xuống tin nhắn mới nhất"
-                >
-                    <FaArrowDown className="w-5 h-5 text-darkPrimary" />
-                </button>
-            )}
+  return (
+    <div className="flex flex-col h-full">
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-y-auto p-4"
+        onScroll={handleScroll}
+      >
+        {loading && <Spinner />}
+        <div className="space-y-4">
+          {messages.map((message, index) => (
+            <MessageItem
+              key={message.id || message.MessageID || index}
+              message={message}
+              avatarURL={avatarURL}
+              conversationName={conversationName}
+            />
+          ))}
         </div>
-    );
+        <div ref={messagesEndRef} />
+      </div>
+
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="fixed bottom-20 right-4 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-primary-dark transition-colors"
+          title="Cuộn xuống"
+        >
+          <FaArrowDown />
+        </button>
+      )}
+    </div>
+  );
 }
 
 export default MessageComponent;
