@@ -5,13 +5,12 @@
 **Đồ án môn học:** Nhóm 11 - Website kết nối freelance với dự án
 **Giảng viên hướng dẫn:** Ths. Trần Tuấn Dũng
 **👨‍💻 Thành viên nhóm 11:**
-| Vai trò       | Họ và Tên                                                                 | MSSV      |
-|---------------|---------------------------------------------------------------------------|-----------|
-| Trưởng nhóm   | [**Ngô Thái Vinh**](https://github.com/Vi-Alviss)                         | 23521791  |
-| Thành viên 1  | [**Phạm Thanh Sơn**](https://github.com/PhamSonUIT)                       | 21522556  |
-| Thành viên 2  | [**Lê Quốc Huy**](https://github.com/LQHtmt)                              | 23520615  |
-| Thành viên 3  | [**Lê Phương Uyên**](https://github.com/PUynn)                            | 23521761  |
-| Thành viên 4  | [**Lê Thị Tường Vy**](https://github.com/yvtg)                            | 23521828  |
+| Vai trò       | Họ và Tên                                                                 | MSSV      | Đóng góp  | 
+|---------------|---------------------------------------------------------------------------|-----------|-----------|
+| Trưởng nhóm   | [**Ngô Thái Vinh**](https://github.com/Vi-Alviss)                         | 23521791  | 25%       |
+| Thành viên 1  | [**Phạm Thanh Sơn**](https://github.com/PhamSonUIT)                       | 21522556  | 15%       |
+| Thành viên 2  | [**Lê Phương Uyên**](https://github.com/PUynn)                            | 23521761  | 30%       |
+| Thành viên 3  | [**Lê Thị Tường Vy**](https://github.com/yvtg)                            | 23521828  | 30%       |
 
 
 ## Giới thiệu sơ lược
